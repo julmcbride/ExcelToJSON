@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Excel to JSON converter</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <!--https://www.npmjs.com/package/xlsx-->
+    <script src="xlsx.full.min.js"></script><!--v.0.18.5-->
+
+    <style>
+      body {
+        padding:20px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <h1>Excel to JSON converter</h1>
+    <small>Utilizes the xlsx package with <a href="https://www.npmjs.com/package/xlsx">SheetJS</a>.</small>
+    <hr/>
+<form id="form">
+    <label><b>1. Upload file</b>  <small>(only .xls or .xlsx files with single sheet)</small></label><br/>
+    <input type="file" class="btn btn-secondary" id="fileUpload" accept=".xls,.xlsx" />
+    <br /><br />
+    <b>2.</b> <button type="button" class="btn btn-success" id="uploadExcel">Convert to JSON</button><br/><br/>
+    <p><b>3.</b> Click to select and copy output below (also logs to Chrome developer tools console), paste to code editor and save with .json extension.</p>
+
+    <p>JSON can be validated on <a href="https://jsonlint.com/" target="_blank">https://jsonlint.com</a>.</p>
+
+    <button type="button" class="btn btn-secondary" onClick="resetFunction()">Reset</button>
+  </form>
+    <hr/>
+    <h2>Output:</h2>
+    <pre id="jsonData"></pre>
+  </body>
+  <script>
+    
+    var selectedFile;
+    document
+      .getElementById("fileUpload")
+      .addEventListener("change", function(event) {
+        selectedFile = event.target.files[0];
+      });
+    document
+      .getElementById("uploadExcel")
+      .addEventListener("click", function() {
+        if (selectedFile) {
+          //console.log("hi");
+          var fileReader = new FileReader();
+          fileReader.onload = function(event) {
+            var data = event.target.result;
+            var workbook = XLSX.read(data, {
+              type: "binary"
+            });
+            workbook.SheetNames.forEach(sheet => {
+              /*let rowObject = XLSX.utils.sheet_to_row_object_array(
+                workbook.Sheets[sheet],{defval:""}
+              );*/
+              let rowObject = XLSX.utils.sheet_to_json(
+                workbook.Sheets[sheet],{defval:""} //handles empty values
+              );
+              let jsonObject = JSON.stringify(rowObject);
+              document.getElementById("jsonData").innerHTML = jsonObject;
+              console.log(jsonObject);
+            });
+          };
+          fileReader.readAsBinaryString(selectedFile);
+        }
+      });
+
+      function resetFunction() {
+        document.getElementById("form").reset();
+        document.getElementById("jsonData").innerHTML = "";
+      }
+  </script>
+</html>
