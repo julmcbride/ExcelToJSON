@@ -1,14 +1,11 @@
 var selectedFile;
-document
-  .getElementById("fileUpload")
-  .addEventListener("change", function(event) {
+document.getElementById("fileUpload").addEventListener("change", function(event) {
     selectedFile = event.target.files[0];
   });
 document
   .getElementById("uploadExcel")
   .addEventListener("click", function() {
     if (selectedFile) {
-      //console.log("hi");
       var fileReader = new FileReader();
       fileReader.onload = function(event) {
         var data = event.target.result;
